@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function CreatePlayer() {
+function CreatePlayer({ teamId }) {
   const [formData, setFormData] = useState({
     Player_Id: '',
     First_Name: '',
@@ -33,7 +33,7 @@ function CreatePlayer() {
     }
 
     if (!formData.Player_Id || isNaN(formData.Player_Id)) {
-      setError('Please enter a valid integer');
+      setError('Please enter a valid integer for Player Id');
       return;
     }
 
@@ -42,13 +42,16 @@ function CreatePlayer() {
       return;
     }
 
+    // Include teamId when sending the player data
+    const playerData = { ...formData, teamId };
+
     try {
-      const response = await fetch('http://localhost:3001/players', {
+      const response = await fetch(`http://localhost:3001/teams/${teamId}/players`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(playerData),
       });
 
       if (response.ok) {
@@ -65,7 +68,6 @@ function CreatePlayer() {
           State: '',
           Zip: ''
         });
-
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Failed to create player');
@@ -78,9 +80,9 @@ function CreatePlayer() {
 
   return (
     <div>
-      <h2>Create Player</h2>
+      <h2>Create Player for Team {teamId}</h2>
       <form onSubmit={handleSubmit}>
-      <div>
+        <div>
           <label>Player Id:</label>
           <input
             type="text"
